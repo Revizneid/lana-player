@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lana Audio Player</title>
+    <title>Lana Player - Audiobook</title>
     <style>
         :root {
             --bg-color: #121212;
             --card-bg: #1e1e1e;
             --text-color: #ffffff;
             --text-secondary: #b3b3b3;
-            --accent-color: #1db954; /* Màu Spotify xanh lá */
+            --accent-color: #1db954; /* Màu xanh Spotify đặc trưng */
             --progress-bg: #535353;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -37,20 +37,28 @@
         .volume-slider { -webkit-appearance: none; width: 100%; height: 5px; background: var(--progress-bg); border-radius: 5px; outline: none; }
         .volume-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; background: var(--text-color); border-radius: 50%; cursor: pointer; }
 
-        .playlist { margin-top: 30px; border-top: 1px solid var(--progress-bg); padding-top: 20px; max-height: 200px; overflow-y: auto; }
-        .playlist-item { display: flex; align-items: center; padding: 10px; border-radius: 8px; cursor: pointer; gap: 15px; }
+        .playlist { margin-top: 30px; border-top: 1px solid var(--progress-bg); padding-top: 20px; max-height: 250px; overflow-y: auto; }
+        /* Tùy chỉnh thanh cuộn cho Playlist */
+        .playlist::-webkit-scrollbar { width: 6px; }
+        .playlist::-webkit-scrollbar-track { background: transparent; }
+        .playlist::-webkit-scrollbar-thumb { background-color: var(--progress-bg); border-radius: 20px; }
+
+        .playlist-item { display: flex; align-items: center; padding: 10px; border-radius: 8px; cursor: pointer; gap: 15px; transition: background 0.2s; }
         .playlist-item:hover, .playlist-item.active { background-color: rgba(255,255,255,0.1); }
         .playlist-item.active { color: var(--accent-color); }
         .item-number { font-size: 14px; color: var(--text-secondary); width: 20px; text-align: center; }
+        .playlist-item.active .item-number { color: var(--accent-color); }
         .item-title { font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        .loading-text { font-size: 12px; color: var(--accent-color); display: none; text-align: center; margin-top: 10px; }
     </style>
 </head>
 <body>
 
 <div class="player-container">
     <div class="track-info">
-        <div class="track-title" id="trackTitle">Đang tải...</div>
-        <div class="track-artist" id="trackArtist">Vui lòng chọn bài</div>
+        <div class="track-title" id="trackTitle">Lana Player</div>
+        <div class="track-artist" id="trackArtist">Chọn bài để nghe</div>
     </div>
 
     <div class="progress-container">
@@ -77,19 +85,39 @@
     <div class="playlist" id="playlistContainer">
         <!-- Playlist sẽ được render bằng JS -->
     </div>
+    <div class="loading-text" id="loadingText">Đang tải dữ liệu từ GitHub...</div>
 </div>
 
 <audio id="audioPlayer"></audio>
 
 <script>
-    // ========= CẤU HÌNH DANH SÁCH PHÁT =========
-    // Thay thế FILE_ID bằng ID lấy từ Google Drive của bạn
+    // ==========================================================
+    // ========= CẤU HÌNH DANH SÁCH PHÁT (READ ME) =========
+    // ==========================================================
+    // 1. Upload file .mp3 lên GitHub Releases.
+    // 2. Copy đường dẫn trực tiếp đến file đó (Direct URL).
+    // 3. Dán vào mảng bên dưới theo cấu trúc { title, artist, url }
+    // Lưu ý: Link GitHub Releases thường có dạng: https://github.com/TAI_KHOAN/REPO/releases/download/v1.0/ten_file.mp3
+    
     const playlist = [
-        { title: "Tu Chân Liêu Thiên - Tập 1", artist: "Audiobook", fileId: "1ZjM3g5_CJfUlZW7-wkMK7hLaqNdy_Xxl" },
-        { title: "Tu Chân Liêu Thiên - Tập 2", artist: "Audiobook", fileId: "1X2Y3Z4W5V6U7T8S9R0Q" },
-        { title: "Tu Chân Liêu Thiên - Tập 3", artist: "Audiobook", fileId: "1Z9Y8X7W6V5U4T3S2R1Q" },
-        // Thêm các tập khác tại đây...
+        {
+            title: "Tu Chân Liêu Thiên - Tập 1",
+            artist: "Audiobook",
+            url: "https://github.com/Revizneid/lana-player/releases/download/v1.0/Tu_Chan_Lieu_Thien_Qu.n_T.p_4__Ch.ng_189_T.i_247_-_Do_Th._-_YouTube_000.mp3" // Thay link thật vào đây
+        },
+        {
+            title: "Tu Chân Liêu Thiên - Tập 2",
+            artist: "Audiobook",
+            url: "https://github.com/TaiKhoanCuaBan/RepoCuaBan/releases/download/v1.0/Tap2.mp3" // Thay link thật vào đây
+        },
+        {
+            title: "Tu Chân Liêu Thiên - Tập 3",
+            artist: "Audiobook",
+            url: "https://github.com/TaiKhoanCuaBan/RepoCuaBan/releases/download/v1.0/Tap3.mp3" // Thay link thật vào đây
+        }
+        // Thêm bao nhiêu tập tùy thích, nhớ dấu phẩy , ở cuối mỗi object
     ];
+    // ==========================================================
 
     const audioPlayer = document.getElementById('audioPlayer');
     const playBtn = document.getElementById('playBtn');
@@ -103,13 +131,9 @@
     const trackTitle = document.getElementById('trackTitle');
     const trackArtist = document.getElementById('trackArtist');
     const playlistContainer = document.getElementById('playlistContainer');
+    const loadingText = document.getElementById('loadingText');
 
     let currentTrackIndex = 0;
-
-    // Hàm chuyển đổi Google Drive File ID thành Link Stream
-    function getStreamUrl(fileId) {
-        return `https://lh3.googleusercontent.com/d/${fileId}`;
-    }
 
     // Khởi tạo Playlist UI
     function renderPlaylist() {
@@ -130,16 +154,32 @@
     function loadTrack(index) {
         currentTrackIndex = index;
         const track = playlist[index];
+        
         trackTitle.textContent = track.title;
         trackArtist.textContent = track.artist;
-        audioPlayer.src = getStreamUrl(track.fileId);
+        
+        // Gán nguồn phát trực tiếp từ GitHub Releases
+        audioPlayer.src = track.url;
+        
+        // Hiện trạng thái tải (vì file lớn đôi khi mất 1-2s để buffer từ GitHub)
+        loadingText.style.display = 'block';
+        
         audioPlayer.load();
         playTrack();
-        renderPlaylist(); // Cập nhật highlight
+        renderPlaylist(); // Cập nhật highlight danh sách
+        
+        // Tự động cuộn đến bài đang chọn trong danh sách
+        const activeItem = document.querySelector('.playlist-item.active');
+        if (activeItem) {
+            activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
     }
 
     function playTrack() {
-        audioPlayer.play();
+        audioPlayer.play().catch(e => {
+            // Trình duyệt đôi khi block autoplay, người dùng cần bấm Play thủ công
+            console.log("Trình duyệt yêu cầu tương tác để phát âm thanh.");
+        });
         playBtn.textContent = '⏸';
     }
 
@@ -148,8 +188,9 @@
         playBtn.textContent = '▶';
     }
 
-    // Event Listeners
+    // Event Listeners các nút bấm
     playBtn.addEventListener('click', () => {
+        if (!audioPlayer.src) return; // Chưa có bài nào
         if (audioPlayer.paused) playTrack();
         else pauseTrack();
     });
@@ -164,23 +205,35 @@
         loadTrack(currentTrackIndex);
     });
 
-    // Cập nhật thanh tiến trình
+    // Xử lý thanh tiến trình
     audioPlayer.addEventListener('timeupdate', () => {
-        const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
-        progressFill.style.width = `${progress}%`;
-        currentTimeEl.textContent = formatTime(audioPlayer.currentTime);
+        if (audioPlayer.duration) {
+            const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+            progressFill.style.width = `${progress}%`;
+            currentTimeEl.textContent = formatTime(audioPlayer.currentTime);
+        }
     });
 
     audioPlayer.addEventListener('loadedmetadata', () => {
         durationEl.textContent = formatTime(audioPlayer.duration);
+        loadingText.style.display = 'none'; // Ẩn chữ đang tải khi đã load xong metadata
+    });
+
+    audioPlayer.addEventListener('waiting', () => {
+        loadingText.style.display = 'block'; // Hiện đang tải nếu bị đơ buffer
+    });
+
+    audioPlayer.addEventListener('playing', () => {
+        loadingText.style.display = 'none'; // Ẩn khi bắt đầu phát tiếp
     });
 
     // Click vào thanh tiến trình để tua
     progressBar.addEventListener('click', (e) => {
         const width = progressBar.clientWidth;
         const clickX = e.offsetX;
-        const duration = audioPlayer.duration;
-        audioPlayer.currentTime = (clickX / width) * duration;
+        if (audioPlayer.duration) {
+            audioPlayer.currentTime = (clickX / width) * audioPlayer.duration;
+        }
     });
 
     // Âm lượng
@@ -193,16 +246,25 @@
         nextBtn.click();
     });
 
-    // Hàm format thời gian (giây -> mm:ss)
+    // Hàm format thời gian (giây -> mm:ss hoặc h:mm cho audiobook dài)
     function formatTime(seconds) {
         if (isNaN(seconds)) return "0:00";
-        const mins = Math.floor(seconds / 60);
-        const secs = Math.floor(seconds % 60);
-        return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        const s = Math.floor(seconds % 60);
+        
+        if (h > 0) {
+            return `${h}:${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+        }
+        return `${m}:${s < 10 ? '0' : ''}${s}`;
     }
 
-    // Bắt đầu tải bài đầu tiên
-    loadTrack(0);
+    // Khởi tạo màn hình lần đầu
+    renderPlaylist();
+    // Tải bài đầu tiên nhưng không tự động Play (để tránh bị trình duyệt chặn)
+    trackTitle.textContent = playlist[0].title;
+    trackArtist.textContent = playlist[0].artist;
+    audioPlayer.src = playlist[0].url;
 </script>
 
 </body>
