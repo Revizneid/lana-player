@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lana Audio Player</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-color: #ffffff;
+            --text-secondary: #b3b3b3;
+            --accent-color: #1db954; /* Màu Spotify xanh lá */
+            --progress-bg: #535353;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-color); display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        
+        .player-container { background-color: var(--card-bg); border-radius: 20px; padding: 40px; width: 100%; max-width: 450px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+        .track-info { text-align: center; margin-bottom: 30px; }
+        .track-title { font-size: 24px; font-weight: bold; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .track-artist { font-size: 16px; color: var(--text-secondary); }
+
+        .progress-container { margin-bottom: 20px; }
+        .progress-bar { width: 100%; height: 5px; background-color: var(--progress-bg); border-radius: 5px; cursor: pointer; position: relative; }
+        .progress-bar:hover { height: 8px; }
+        .progress-fill { height: 100%; background-color: var(--accent-color); border-radius: 5px; width: 0%; transition: width 0.1s linear; }
+        .time-info { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-secondary); margin-top: 5px; }
+
+        .controls { display: flex; justify-content: center; align-items: center; gap: 25px; margin-bottom: 30px; }
+        .btn { background: none; border: none; color: var(--text-color); cursor: pointer; font-size: 20px; transition: all 0.2s; }
+        .btn:hover { color: var(--accent-color); transform: scale(1.1); }
+        .play-btn { width: 60px; height: 60px; background-color: var(--accent-color); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 24px; color: black; }
+        .play-btn:hover { transform: scale(1.05); background-color: #1ed760; color: black; }
+
+        .volume-container { display: flex; align-items: center; gap: 10px; }
+        .volume-slider { -webkit-appearance: none; width: 100%; height: 5px; background: var(--progress-bg); border-radius: 5px; outline: none; }
+        .volume-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; background: var(--text-color); border-radius: 50%; cursor: pointer; }
+
+        .playlist { margin-top: 30px; border-top: 1px solid var(--progress-bg); padding-top: 20px; max-height: 200px; overflow-y: auto; }
+        .playlist-item { display: flex; align-items: center; padding: 10px; border-radius: 8px; cursor: pointer; gap: 15px; }
+        .playlist-item:hover, .playlist-item.active { background-color: rgba(255,255,255,0.1); }
+        .playlist-item.active { color: var(--accent-color); }
+        .item-number { font-size: 14px; color: var(--text-secondary); width: 20px; text-align: center; }
+        .item-title { font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    </style>
+</head>
+<body>
+
+<div class="player-container">
+    <div class="track-info">
+        <div class="track-title" id="trackTitle">Đang tải...</div>
+        <div class="track-artist" id="trackArtist">Vui lòng chọn bài</div>
+    </div>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="time-info">
+            <span id="currentTime">0:00</span>
+            <span id="duration">0:00</span>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="btn" id="prevBtn">⏮</button>
+        <button class="btn play-btn" id="playBtn">▶</button>
+        <button class="btn" id="nextBtn">⏭</button>
+    </div>
+
+    <div class="volume-container">
+        <span>🔊</span>
+        <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.01" value="1">
+    </div>
+
+    <div class="playlist" id="playlistContainer">
+        <!-- Playlist sẽ được render bằng JS -->
+    </div>
+</div>
+
+<audio id="audioPlayer"></audio>
+
+<script>
+    // ========= CẤU HÌNH DANH SÁCH PHÁT =========
+    // Thay thế FILE_ID bằng ID lấy từ Google Drive của bạn
+    const playlist = [
+        { title: "Tu Chân Liêu Thiên - Tập 1", artist: "Audiobook", fileId: "1ZjM3g5_CJfUlZW7-wkMK7hLaqNdy_Xxl" },
+        { title: "Tu Chân Liêu Thiên - Tập 2", artist: "Audiobook", fileId: "1X2Y3Z4W5V6U7T8S9R0Q" },
+        { title: "Tu Chân Liêu Thiên - Tập 3", artist: "Audiobook", fileId: "1Z9Y8X7W6V5U4T3S2R1Q" },
+        // Thêm các tập khác tại đây...
+    ];
+
+    const audioPlayer = document.getElementById('audioPlayer');
+    const playBtn = document.getElementById('playBtn');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const progressBar = document.getElementById('progressBar');
+    const progressFill = document.getElementById('progressFill');
+    const currentTimeEl = document.getElementById('currentTime');
+    const durationEl = document.getElementById('duration');
+    const volumeSlider = document.getElementById('volumeSlider');
+    const trackTitle = document.getElementById('trackTitle');
+    const trackArtist = document.getElementById('trackArtist');
+    const playlistContainer = document.getElementById('playlistContainer');
+
+    let currentTrackIndex = 0;
+
+    // Hàm chuyển đổi Google Drive File ID thành Link Stream
+    function getStreamUrl(fileId) {
+        return `https://lh3.googleusercontent.com/d/${fileId}`;
+    }
+
+    // Khởi tạo Playlist UI
+    function renderPlaylist() {
+        playlistContainer.innerHTML = '';
+        playlist.forEach((track, index) => {
+            const item = document.createElement('div');
+            item.className = `playlist-item ${index === currentTrackIndex ? 'active' : ''}`;
+            item.innerHTML = `
+                <span class="item-number">${index + 1}</span>
+                <span class="item-title">${track.title}</span>
+            `;
+            item.addEventListener('click', () => loadTrack(index));
+            playlistContainer.appendChild(item);
+        });
+    }
+
+    // Tải bài hát
+    function loadTrack(index) {
+        currentTrackIndex = index;
+        const track = playlist[index];
+        trackTitle.textContent = track.title;
+        trackArtist.textContent = track.artist;
+        audioPlayer.src = getStreamUrl(track.fileId);
+        audioPlayer.load();
+        playTrack();
+        renderPlaylist(); // Cập nhật highlight
+    }
+
+    function playTrack() {
+        audioPlayer.play();
+        playBtn.textContent = '⏸';
+    }
+
+    function pauseTrack() {
+        audioPlayer.pause();
+        playBtn.textContent = '▶';
+    }
+
+    // Event Listeners
+    playBtn.addEventListener('click', () => {
+        if (audioPlayer.paused) playTrack();
+        else pauseTrack();
+    });
+
+    nextBtn.addEventListener('click', () => {
+        currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
+        loadTrack(currentTrackIndex);
+    });
+
+    prevBtn.addEventListener('click', () => {
+        currentTrackIndex = (currentTrackIndex - 1 + playlist.length) % playlist.length;
+        loadTrack(currentTrackIndex);
+    });
+
+    // Cập nhật thanh tiến trình
+    audioPlayer.addEventListener('timeupdate', () => {
+        const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+        progressFill.style.width = `${progress}%`;
+        currentTimeEl.textContent = formatTime(audioPlayer.currentTime);
+    });
+
+    audioPlayer.addEventListener('loadedmetadata', () => {
+        durationEl.textContent = formatTime(audioPlayer.duration);
+    });
+
+    // Click vào thanh tiến trình để tua
+    progressBar.addEventListener('click', (e) => {
+        const width = progressBar.clientWidth;
+        const clickX = e.offsetX;
+        const duration = audioPlayer.duration;
+        audioPlayer.currentTime = (clickX / width) * duration;
+    });
+
+    // Âm lượng
+    volumeSlider.addEventListener('input', (e) => {
+        audioPlayer.volume = e.target.value;
+    });
+
+    // Tự động chuyển bài khi hết
+    audioPlayer.addEventListener('ended', () => {
+        nextBtn.click();
+    });
+
+    // Hàm format thời gian (giây -> mm:ss)
+    function formatTime(seconds) {
+        if (isNaN(seconds)) return "0:00";
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    }
+
+    // Bắt đầu tải bài đầu tiên
+    loadTrack(0);
+</script>
+
+</body>
+</html>
