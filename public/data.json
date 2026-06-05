@@ -1,41 +1,5 @@
 [
   {
-    "id": "tu-chan-lieu-thien-quan",
-    "title": "Tu Chân Liêu Thiên Quân",
-    "author": "Đô Thị",
-    "cover": "https://khodocsach.com/wp-content/uploads/2024/05/Tu-chan-lieu-thien-quan-cover.jpg",
-    "tracks": [
-      {
-        "title": "Tu Chân Liêu Thiên Quân - Tập 7",
-        "url": "https://github.com/Revizneid/lana-player/releases/download/v1.2/Tu_Chan_Lieu_Thien_Qu.n_T.p_7__Ch.ng_374_T.i_440.mp3"
-      },
-      {
-        "title": "Tu Chân Liêu Thiên Quân - Tập 8",
-        "url": "https://github.com/Revizneid/lana-player/releases/download/v1.0-audiobooks/Tu_Chan_Lieu_Thien_Qu_n_T_p_8_-_Ch_ng_441_T_i_506_-_o_Th.webm"
-      },
-      {
-        "title": "Tu Chân Liêu Thiên Quân - Tập 9",
-        "url": "https://github.com/Revizneid/lana-player/releases/download/v1.0-audiobooks/Tu_Chan_Lieu_Thien_Qu_n_T_p_9_-_Ch_ng_507_T_i_565_-_o_Th.webm"
-      },
-      {
-        "title": "Tu Chân Liêu Thiên Quân - Tập 10",
-        "url": "https://github.com/Revizneid/lana-player/releases/download/v1.0-audiobooks/Tu_Chan_Lieu_Thien_Qu_n_T_p_10_-_Ch_ng_566_T_i_625_-_o_Th.webm"
-      }
-    ]
-  },
-  {
-    "id": "yt-PphkeUEs3w0",
-    "title": "Tu Chân Liêu Thiên Quần Tập 12: Chương 693 Tới 758 - Đô Thị",
-    "author": "Galaxy Audio",
-    "cover": "https://i.ytimg.com/vi/PphkeUEs3w0/hqdefault.jpg",
-    "tracks": [
-      {
-        "title": "Tu_Chan_Lieu_Thien_Qu_n_T_p_12_-_Ch_ng_693_T_i_758_-_o_Th",
-        "url": "https://github.com/Revizneid/lana-player/releases/download/v1.0-audiobooks/Tu_Chan_Lieu_Thien_Qu_n_T_p_12_-_Ch_ng_693_T_i_758_-_o_Th.webm"
-      }
-    ]
-  },
-  {
     "id": "yt-QryCv7FFMJI",
     "title": "Tu Chân Liêu Thiên Quần Tập 7: Chương 374 Tới 440 - Đô Thị",
     "author": "Galaxy Audio",
