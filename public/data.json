@@ -1,5 +1,5 @@
 [
-   {
+  {
     "id": "yt-DnTFm3kWR7Y",
     "title": "Tu Chân Liêu Thiên Quần Tập 8: Chương 441 Tới 506 - Đô Thị",
     "author": "Galaxy Audio",
@@ -20,6 +20,30 @@
       {
         "url": "https://github.com/Revizneid/lana-player/releases/download/v1.0-audiobooks/Tu_Chan_Lieu_Thien_Qu_n_T_p_8_-_Ch_ng_441_T_i_506_-_o_Th_003.mp3",
         "title": "Tu Chân Liêu Thiên Quần Tập 8 003"
+      }
+    ]
+  },
+  {
+    "id": "yt-fRgB3H9NImI",
+    "title": "Tu Chân Liêu Thiên Quần Tập 9: Chương 507 Tới 565 - Đô Thị",
+    "author": "Galaxy Audio",
+    "cover": "",
+    "tracks": [
+      {
+        "url": "https://github.com/Revizneid/lana-player/releases/download/v1.0-audiobooks/Tu_Chan_Lieu_Thien_Qu_n_T_p_9_-_Ch_ng_507_T_i_565_-_o_Th_000.mp3",
+        "title": "Tu Chan Lieu Thien Qu n T p 9 - Ch ng 507 T i 565 - o Th 000"
+      },
+      {
+        "url": "https://github.com/Revizneid/lana-player/releases/download/v1.0-audiobooks/Tu_Chan_Lieu_Thien_Qu_n_T_p_9_-_Ch_ng_507_T_i_565_-_o_Th_001.mp3",
+        "title": "Tu Chan Lieu Thien Qu n T p 9 - Ch ng 507 T i 565 - o Th 001"
+      },
+      {
+        "url": "https://github.com/Revizneid/lana-player/releases/download/v1.0-audiobooks/Tu_Chan_Lieu_Thien_Qu_n_T_p_9_-_Ch_ng_507_T_i_565_-_o_Th_002.mp3",
+        "title": "Tu Chan Lieu Thien Qu n T p 9 - Ch ng 507 T i 565 - o Th 002"
+      },
+      {
+        "url": "https://github.com/Revizneid/lana-player/releases/download/v1.0-audiobooks/Tu_Chan_Lieu_Thien_Qu_n_T_p_9_-_Ch_ng_507_T_i_565_-_o_Th_003.mp3",
+        "title": "Tu Chan Lieu Thien Qu n T p 9 - Ch ng 507 T i 565 - o Th 003"
       }
     ]
   }
